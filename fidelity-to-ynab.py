@@ -8,13 +8,20 @@ import csv
 import sys
 import re
 
-def isDateRecord(record):
+def isInflowOutflowRecord(record):
     # Use regex to retrieve date field
     # Tricky part is to cut off immediately after the year '$', otherwise you
     # get a record with a "Downloaded on xx/yy/zzzz hh:mm pm"
+    retVal = None
 
-    match = re.search(r'\d{2}/\d{2}/\d{4}$', record[0])
-    return (match)
+    # Need this check to avoid lines that appear to be InflowOutflowRecord,
+    # but are too short
+    #
+    if (len(record) >= 10):
+        retVal = re.search(r'\d{2}/\d{2}/\d{4}$', record[0])
+
+    return retVal
+
 
 def convertRecord(record):
     # Reduce unwanted fields.  Tricky part: if the transaction amount field
@@ -23,6 +30,7 @@ def convertRecord(record):
     #
     newRecord = record[0:2]
     newRecord += ['','']
+
     if (float(record[10]) < 0):
         print 'processing negative'
         newRecord += [str(abs(float(record[10]))), '']
@@ -53,8 +61,8 @@ def convertCsvFile(argv):
                 # Is the record a transaction?  Parse it for a recognizable date.
                 #
                 if (record):
-                    if (isDateRecord(record)):
-                        # Found record with date, no convert it and add to
+                    if (isInflowOutflowRecord(record)):
+                        # Found record with date, now convert it and add to
                         # outgoing data
                         #
                         newRecord = convertRecord(record)
