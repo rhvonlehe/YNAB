@@ -55,7 +55,7 @@ def convert_csv_file(argv):
     #
     with open(argv[0]) as fidelityFile:
 
-        with open('out.csv', 'wt', encoding="utf-8", newline='') as ynabFile:
+        with open('out.csv', mode='wt', encoding="utf-8", newline='') as ynabFile:
             fidelityReader = csv.reader(fidelityFile)   
             ynabWriter = csv.writer(ynabFile)
             ynabWriter.writerow(['Date', 'Payee', 'Category', 'Memo', 'Outflow', 'Inflow'])
