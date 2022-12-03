@@ -9,7 +9,7 @@ import sys
 import re
 
 
-def is_inflow_outflow_record(record):
+def is_valid_inflow_outflow_record(record):
     # Use regex to retrieve date field
     # Tricky part is to cut off immediately after the year '$', otherwise you
     # get a record with a "Downloaded on xx/yy/zzzz hh:mm pm"
@@ -32,7 +32,10 @@ def convert_record(record):
     newRecord = record[0:2]
     newRecord += ['', '']
 
-    if (float(record[10]) < 0):
+    if float(record[10] == ''):
+        # Avoid error trying to convert string to float below
+        newRecord += ['', '0']
+    elif float(record[10]) < 0:
         print('processing negative')
         newRecord += [str(abs(float(record[10]))), '']
     else:
@@ -60,10 +63,11 @@ def convert_csv_file(argv):
             ynabWriter = csv.writer(ynabFile)
             ynabWriter.writerow(['Date', 'Payee', 'Category', 'Memo', 'Outflow', 'Inflow'])
             for record in fidelityReader:
-                # Is the record a transaction?  Parse it for a recognizable date.
+                # Is the record a transaction?  Parse it for a recognizable date
                 #
                 if (record):
-                    if is_inflow_outflow_record(record):
+                    if is_valid_inflow_outflow_record(record):
+                        print(record)
                         # Found record with date, now convert it and add to
                         # outgoing data
                         #
